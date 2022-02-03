@@ -25,7 +25,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
-	"gopkg.in/src-d/go-git.v4"
+	"github.com/go-git/go-git/v5"
 )
 
 // GithubPayload is the response from GitHub

@@ -24,7 +24,7 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 	"github.com/stretchr/testify/assert"
-	git "gopkg.in/src-d/go-git.v4"
+	git "github.com/go-git/go-git/v5"
 )
 
 func TestCheckoutBranch(t *testing.T) {

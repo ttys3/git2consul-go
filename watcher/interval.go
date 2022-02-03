@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 // Watch the repo by interval. This is called as a go routine since

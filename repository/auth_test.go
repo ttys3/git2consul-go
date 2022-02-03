@@ -24,8 +24,8 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
 func TestGetAuthWithPlainAuth(t *testing.T) {

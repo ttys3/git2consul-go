@@ -27,8 +27,8 @@ import (
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/discard"
 	"github.com/stretchr/testify/assert"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/config"
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 )
 
 func init() {

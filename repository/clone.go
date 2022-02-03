@@ -19,7 +19,7 @@ package repository
 import (
 	"fmt"
 
-	"gopkg.in/src-d/go-git.v4"
+	"github.com/go-git/go-git/v5"
 )
 
 // Clone the repository. Cloning will only checkout tracked branches.

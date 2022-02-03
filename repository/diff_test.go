@@ -24,8 +24,8 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 	"github.com/stretchr/testify/assert"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/utils/merkletrie"
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/utils/merkletrie"
 )
 
 func TestDiffStatus(t *testing.T) {

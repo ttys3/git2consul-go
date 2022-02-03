@@ -17,7 +17,7 @@ limitations under the License.
 package repository
 
 import (
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 // CheckRef checks whether a particular ref is part of the repository

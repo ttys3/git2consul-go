@@ -22,7 +22,7 @@ import (
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
 	"github.com/apex/log"
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 // Push a repository branch to the KV
