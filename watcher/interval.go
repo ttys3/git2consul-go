@@ -48,7 +48,7 @@ func (w *Watcher) pollByInterval(repo repository.Repo, wg *sync.WaitGroup) {
 		return
 	}
 
-	ticker := time.NewTicker(interval * time.Second)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	// Polling error should not stop polling by interval
@@ -79,7 +79,7 @@ func (w *Watcher) pollBranches(repo repository.Repo) error {
 	}
 	changed := false
 
-	var checkoutBranchFn = func(b *plumbing.Reference) error {
+	checkoutBranchFn := func(b *plumbing.Reference) error {
 		branchOnRemote := repository.StringInSlice(path.Base(b.Name().String()), config.Branches)
 		if branchOnRemote {
 			branchName := b.Name().Short()
