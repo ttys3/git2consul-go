@@ -1,11 +1,11 @@
 FROM golang:1.17.6 AS builder
 
-WORKDIR /go/src/github.com/KohlsTechnology/git2consul-go
+WORKDIR /build
 COPY . .
 RUN make build
 
-FROM scratch
+FROM alpine
 
-COPY --from=builder /go/src/github.com/KohlsTechnology/git2consul-go/git2consul /git2consul
+COPY --from=builder /build/git2consul /git2consul
 
 ENTRYPOINT ["/git2consul"]
