@@ -75,7 +75,7 @@ func (c Config) DumpSampleConfig(w io.Writer) error {
 			SourceRoot:     "/",
 			MountPoint:     "",
 			ExpandKeys:     false,
-			SkipBranchName: false,
+			SkipBranchName: true,
 			SkipRepoName:   false,
 			Credentials: Credentials{
 				Username: "",
