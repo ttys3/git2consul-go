@@ -56,8 +56,8 @@ func main() {
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
 	flag.BoolVar(&dumpSampleConfig, "dump", false, "dump sample config")
 	// allow switching logformat. Structured output helps with parsers
-	flag.StringVar(&logfmt, "logfmt", "", "specify log format [ text | cli | json] ")
-	flag.StringVar(&loglvl, "loglvl", "", "set log level [debug | info | warn | error]")
+	flag.StringVar(&logfmt, "logfmt", "", "specify log format [ text | cli | json ] ")
+	flag.StringVar(&loglvl, "loglvl", "", "set log level [debug | info | warn | error ]")
 	flag.Parse()
 
 	if printVersion {

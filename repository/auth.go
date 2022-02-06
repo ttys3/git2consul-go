@@ -21,6 +21,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	xssh "golang.org/x/crypto/ssh"
+	"net"
 )
 
 // GetAuth returns AuthMethod based on the passed flags
@@ -38,10 +40,19 @@ func GetAuth(repo *config.Repo) (transport.AuthMethod, error) {
 		if len(repo.Credentials.PrivateKey.Username) == 0 {
 			repo.Credentials.PrivateKey.Username = "git"
 		}
-		auth, err = ssh.NewPublicKeysFromFile(repo.Credentials.PrivateKey.Username, repo.Credentials.PrivateKey.Key, repo.Credentials.PrivateKey.Password)
+		publicKeyAuth, err := ssh.NewPublicKeysFromFile(
+			repo.Credentials.PrivateKey.Username,
+			repo.Credentials.PrivateKey.Key,
+			repo.Credentials.PrivateKey.Password)
 		if err != nil {
 			return nil, err
 		}
+		if repo.Credentials.PrivateKey.SkipHostKeyCheck {
+			publicKeyAuth.HostKeyCallback = func(hostname string, remote net.Addr, key xssh.PublicKey) error {
+				return nil
+			}
+		}
+		auth = publicKeyAuth
 	}
 
 	return auth, err

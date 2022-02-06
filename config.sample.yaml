@@ -15,6 +15,7 @@ repos:
   credentials:
     private_key:
       key: ~/.ssh/id_ed25519
+      skip_host_key_check: true
       username: git
 consul:
   address: 127.0.0.1:8500

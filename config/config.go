@@ -81,9 +81,10 @@ func (c Config) DumpSampleConfig(w io.Writer) error {
 				Username: "",
 				Password: "",
 				PrivateKey: PrivateKey{
-					Key:      "~/.ssh/id_ed25519",
-					Username: "git",
-					Password: "",
+					Key:              "~/.ssh/id_ed25519",
+					SkipHostKeyCheck: true,
+					Username:         "git",
+					Password:         "",
 				},
 			},
 		},
@@ -106,9 +107,10 @@ type Credentials struct {
 
 // PrivateKey is the representation of private key used for the authentication
 type PrivateKey struct {
-	Key      string `json:"pk_key" yaml:"key"`
-	Username string `json:"pk_username,omitempty" yaml:"username,omitempty"`
-	Password string `json:"pk_password,omitempty" yaml:"password,omitempty"`
+	Key              string `json:"key" yaml:"key"`
+	SkipHostKeyCheck bool   `json:"skip_host_key_check,omitempty" yaml:"skip_host_key_check,omitempty"`
+	Username         string `json:"username,omitempty" yaml:"username,omitempty"`
+	Password         string `json:"password,omitempty" yaml:"password,omitempty"`
 }
 
 // Hook is the configuration for hooks
