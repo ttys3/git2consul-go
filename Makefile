@@ -24,6 +24,9 @@ dump:
 run:
 	./$(BINARY) -loglvl debug -config ./config.sample.yaml
 
+build/image:
+	sudo podman build -t git2consul:$(TAG) .
+
 .PHONY: vendor
 vendor:
 	go mod vendor
