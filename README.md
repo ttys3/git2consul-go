@@ -12,7 +12,7 @@ inspired by the orginal [git2consul](https://github.com/breser/git2consul) tool.
 
 ## Improvements Over NodeJS git2consul
 * uses the official Consul Go Lang client library
-* uses native Go Lang git implementation [go-git](https://github.com/src-d/go-git/)
+* uses native Go Lang git implementation [go-git](https://github.com/go-git/go-git)
 * removal of nodejs and git runtime dependencies
 * configuration is sourced locally instead of it being fetched from the Consul K/V
 * transaction atomicity implies the set of keys is stored either entirely or not at all. Along with atomicity the number of the KV API calls is limited. However there is a pending [issue](https://github.com/hashicorp/consul/issues/2921) as Consul transaction endpoint can handle only 64 items in the payload. The transactions are executed in 64 elements chunks.
@@ -33,28 +33,23 @@ $ git2consul -config config.json -basic -user mygituser -password mygitpass -onc
 ```
 
 Simple example config file.
-```
-{
-  "repos": [
-    {
-      "name": "example",
-      "url": "http://github.com/DummyOrg/ExampleRepo.git"
-    }
-  ]
-}
+```yaml
+repos:
+  - name: example
+    url: http://github.com/DummyOrg/ExampleRepo.git
 ```
 
 ### Command Line Options
 
-```
+```shell
 $ git2consul -help
 Usage of git2consul:
   -config string
         path to config file
-  -debug
-        enable debugging mode
+  -loglvl
+        set log level [debug | info | warn | error]
   -logfmt string
-        specify log format [text | json]  (default "text")
+        specify log format [text | cli | json]  (default "text")
   -once
         run git2consul once and exit
   -version
@@ -90,15 +85,14 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | repos:mount_point                         | no       |                | `string`         | Sets the prefix which should be used for the path in the Consul KV Store         |
 | repos:credentials:username                | no       |                | `string`         | Username for the Basic Auth                                                      |
 | repos:credentials:password                | no       |                | `string`         | Password/token for the Basic Auth                                                |
-| repos:credentials:private_key:pk_key      | no       |                | `string`         | Path to the priv key used for the authentication                                 |
+| repos:credentials:private_key:pk_key      | no       |                | `string`         | Path to the private key used for the authentication                              |
 | repos:credentials:private_key:pk_username | no       | git            | `string`         | Username used with the ssh authentication                                        |
 | repos:credentials:private_key:pk_password | no       |                | `string`         | Password used with the ssh authentication                                        |
 | repos:hooks:type                          | no       | polling        | polling, webhook | Type of hook to use to fetch changes on the repository. See [below](#webhooks).  |
 | repos:hooks:interval                      | no       | 60             | `int`            | Interval, in seconds, to poll if polling is enabled                              |
 | repos:hooks:url                           | no       | ??             | `string`         | ???                                                                              |
 | consul:address                            | no       | 127.0.0.1:8500 | `string`         | Consul address to connect to. It can be either the IP or FQDN with port included |
-| consul:ssl                                | no       | false          | true, false      | Whether to use HTTPS to communicate with Consul                                  |
-| consul:ssl_verify                         | no       | false          | true, false      | Whether to verify certificates when connecting via SSL                           |
+| consul:ssl_enable                         | no       | false          | true, false      | Whether to use HTTPS to communicate with Consul                                  |
 | consul:token                              | no       |                | `string`         | Consul API Token                                                                 |
 
 ### Webhooks

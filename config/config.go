@@ -153,7 +153,7 @@ type WebhookServerConfig struct {
 type ConsulConfig struct {
 	Address   string          `json:"address" yaml:"address"` // default is 127.0.0.1:8500
 	Token     string          `json:"token,omitempty" yaml:"token,omitempty"`
-	SSLEnable bool            `json:"ssl" yaml:"ssl_enable"`
+	SSLEnable bool            `json:"ssl_enable" yaml:"ssl_enable"`
 	TLSConfig ConsulTLSConfig `json:"tls_config" yaml:"tls_config,omitempty"`
 }
 
