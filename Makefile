@@ -64,6 +64,15 @@ golangci-lint:
 .PHONY: lint-all
 lint-all: golangci-lint
 
+.PHONY: lint
+lint:
+	golangci-lint run -v
+
+.PHONY: fmt
+fmt:
+	command -v gofumpt || (WORK=$(shell pwd) && cd /tmp && GO111MODULE=on go get mvdan.cc/gofumpt && cd $(WORK))
+	gofumpt -w -s -d .
+
 # Requires GITHUB_TOKEN environment variable to be set
 .PHONY: release
 release:

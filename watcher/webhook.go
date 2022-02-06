@@ -18,16 +18,20 @@ package watch
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/apex/log"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sort"
 	"sync"
 
+	"github.com/apex/log"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/gorilla/mux"
 )
+
+const GitRefsHeads = "refs/heads/"
 
 // GithubPayload is the response from GitHub
 type GithubPayload struct {
@@ -111,7 +115,7 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(rq.Body)
+	body, err := io.ReadAll(rq.Body)
 	if err != nil {
 		http.Error(rw, "Cannot read body", http.StatusInternalServerError)
 		return
@@ -126,11 +130,12 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	// Check the content
 	ref := payload.Ref
-	if len(ref) == 0 {
+	if ref == "" {
 		http.Error(rw, "ref is empty", http.StatusInternalServerError)
 		return
 	}
-	if len(ref) <= 11 || ref[:11] != "refs/heads/" {
+
+	if len(ref) <= 11 || ref[:11] != GitRefsHeads {
 		return
 	}
 
@@ -150,17 +155,20 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	err = repo.Pull(branchName)
 	switch {
-	case err == git.NoErrAlreadyUpToDate:
-		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-		rw.Write([]byte(fmt.Sprintf("Up to date: %s/%s", repo.Name(), branchName)))
+	case errors.Is(err, git.NoErrAlreadyUpToDate):
+		msg := fmt.Sprintf("Up to date: %s/%s", repo.Name(), branchName)
+		w.logger.Debug(msg)
+		rw.Write([]byte(msg))
 	case err == nil:
-		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
-		rw.Write([]byte(fmt.Sprintf("Changed: %s/%s", repo.Name(), branchName)))
+		msg := fmt.Sprintf("Changed: %s/%s", repo.Name(), branchName)
+		w.logger.Info(msg)
+		rw.Write([]byte(msg))
 		w.RepoChangeCh <- repo
 	case err != nil:
-		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
+		msg := fmt.Sprintf("Failed: %s/%s - %s", repo.Name(), branchName, err)
+		w.logger.Error(msg)
 		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(fmt.Sprintf("Failed: %s/%s - %s", repo.Name(), branchName, err)))
+		rw.Write([]byte(msg))
 	}
 }
 
@@ -169,7 +177,7 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 	vars := mux.Vars(rq)
 	repository := vars["repository"]
 
-	body, err := ioutil.ReadAll(rq.Body)
+	body, err := io.ReadAll(rq.Body)
 	if err != nil {
 		http.Error(rw, "Cannot read body", http.StatusInternalServerError)
 		return
@@ -184,11 +192,11 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	ref := payload.RefChanges[0].RefID
 
-	if len(ref) == 0 {
+	if ref == "" {
 		http.Error(rw, "ref is empty", http.StatusInternalServerError)
 		return
 	}
-	if len(ref) <= 11 || ref[:11] != "refs/heads/" {
+	if len(ref) <= 11 || ref[:11] != GitRefsHeads {
 		return
 	}
 
@@ -207,7 +215,7 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Stash")
 	err = repo.Pull(branchName)
 	switch {
-	case err == git.NoErrAlreadyUpToDate:
+	case errors.Is(err, git.NoErrAlreadyUpToDate):
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
 	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
@@ -232,7 +240,7 @@ func (w *Watcher) bitbucketHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(rq.Body)
+	body, err := io.ReadAll(rq.Body)
 	if err != nil {
 		http.Error(rw, "Cannot read body", http.StatusInternalServerError)
 		return
@@ -247,11 +255,11 @@ func (w *Watcher) bitbucketHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	// Check the content
 	ref := payload.Push.Changes[0].New.Name
-	if len(ref) == 0 {
+	if ref == "" {
 		http.Error(rw, "ref is empty", http.StatusInternalServerError)
 		return
 	}
-	if len(ref) <= 11 || ref[:11] != "refs/heads/" {
+	if len(ref) <= 11 || ref[:11] != GitRefsHeads {
 		return
 	}
 
@@ -270,7 +278,7 @@ func (w *Watcher) bitbucketHandler(rw http.ResponseWriter, rq *http.Request) {
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Bitbucket")
 	err = repo.Pull(branchName)
 	switch {
-	case err == git.NoErrAlreadyUpToDate:
+	case errors.Is(err, git.NoErrAlreadyUpToDate):
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
 	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
@@ -294,7 +302,7 @@ func (w *Watcher) gitlabHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(rq.Body)
+	body, err := io.ReadAll(rq.Body)
 	if err != nil {
 		http.Error(rw, "Cannot read body", http.StatusInternalServerError)
 		return
@@ -309,11 +317,11 @@ func (w *Watcher) gitlabHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	// Check the content
 	ref := payload.Ref
-	if len(ref) == 0 {
+	if ref == "" {
 		http.Error(rw, "ref is empty", http.StatusInternalServerError)
 		return
 	}
-	if len(ref) <= 11 || ref[:11] != "refs/heads/" {
+	if len(ref) <= 11 || ref[:11] != GitRefsHeads {
 		return
 	}
 
@@ -332,7 +340,7 @@ func (w *Watcher) gitlabHandler(rw http.ResponseWriter, rq *http.Request) {
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitLab")
 	err = repo.Pull(branchName)
 	switch {
-	case err == git.NoErrAlreadyUpToDate:
+	case errors.Is(err, git.NoErrAlreadyUpToDate):
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
 	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)

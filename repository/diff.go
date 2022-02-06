@@ -63,7 +63,7 @@ func applySourceRoot(changes object.Changes, sourceRoot string) object.Changes {
 	var selected object.Changes
 	empty := object.ChangeEntry{}
 	for _, change := range changes {
-		name := ""
+		var name string
 		if change.From != empty {
 			name = change.From.Name
 		} else {

@@ -56,7 +56,7 @@ const (
 		"    - second_element: value_4\n"
 )
 
-//TestFile performs tests on implemented file handlers.
+// TestFile performs tests on implemented file handlers.
 // * yaml
 // * text
 func TestFileHandler(t *testing.T) {
@@ -68,7 +68,7 @@ func TestFileHandler(t *testing.T) {
 	}
 	filePath := filepath.Join(os.TempDir(), "foo.yml")
 	defer os.Remove(filePath)
-	err = ioutil.WriteFile(filePath, []byte(content), 0700)
+	err = ioutil.WriteFile(filePath, []byte(content), 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestFileHandler(t *testing.T) {
 	t.Run("TestDeleteTextFile", func(t *testing.T) { testDeleteTextFile(t, repo) })
 }
 
-//testParsNodes verfies yaml file evaluation function.
+// testParsNodes verfies yaml file evaluation function.
 func testParseYamlEntries(t *testing.T) {
 	keys := entriesToKV(yamlTree)
 	if string(keys["ei_unix_cavisson::cavisson_collector_srv"]) != "10.206.96.18" {

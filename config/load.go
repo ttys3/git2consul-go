@@ -19,12 +19,12 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/apex/log"
 )
@@ -36,7 +36,7 @@ func Load(file string) (*Config, error) {
 		"caller": "config",
 	})
 
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -75,12 +75,12 @@ func Load(file string) (*Config, error) {
 func (c *Config) checkConfig() error {
 	for _, repo := range c.Repos {
 		// Check on name
-		if len(repo.Name) == 0 {
+		if repo.Name == "" {
 			return fmt.Errorf("Repository array object missing \"name\" value")
 		}
 
 		// Check on Url
-		if len(repo.URL) == 0 {
+		if repo.URL == "" {
 			return fmt.Errorf("%s does no have a repository URL", repo.Name)
 		}
 
@@ -96,7 +96,7 @@ func (c *Config) checkConfig() error {
 		}
 
 		// Check on mount_point
-		if len(repo.MountPoint) != 0 {
+		if repo.MountPoint != "" {
 			if strings.HasPrefix(repo.MountPoint, "/") {
 				return fmt.Errorf("Invalid mount point format for the %s repository - found \"/\" in the beginning of the path", repo.Name)
 			}
@@ -106,7 +106,7 @@ func (c *Config) checkConfig() error {
 		}
 
 		// Check on source_root
-		if len(repo.SourceRoot) != 0 {
+		if repo.SourceRoot != "" {
 			if !strings.HasPrefix(repo.SourceRoot, "/") {
 				return fmt.Errorf("Invalid source_root format for the %s repository - missing \"/\" in the beginning of the path", repo.Name)
 			}
@@ -121,9 +121,8 @@ func (c *Config) checkConfig() error {
 
 // Return a configuration with sane defaults
 func (c *Config) setDefaultConfig() {
-
 	// Set the default cache store to be the OS' temp dir
-	if len(c.LocalStore) == 0 {
+	if c.LocalStore == "" {
 		c.LocalStore = os.TempDir()
 	}
 

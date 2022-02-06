@@ -52,7 +52,7 @@ func (h *KVHandler) HandleUpdate(repo repository.Repo) error {
 	return nil
 }
 
-//UpdateToHead handles update to current HEAD comparing diffs against the KV.
+// UpdateToHead handles update to current HEAD comparing diffs against the KV.
 func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
 	head, err := repo.Head()
 	if err != nil {
@@ -73,7 +73,7 @@ func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
 	refHash := head.Hash().String()
 	// log.Debugf("(consul) kvRef: %s | localRef: %s", kvRef, localRef)
 
-	if len(kvRef) == 0 {
+	if kvRef == "" {
 		log.Infof("KV PUT changes: %s/%s", repo.Name(), refName)
 		err := h.putBranch(repo, plumbing.ReferenceName(head.Name().Short()))
 		if err != nil {

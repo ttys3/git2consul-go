@@ -22,6 +22,7 @@ import (
 )
 
 // Application build information.
+// nolint: gochecknoglobals
 var (
 	Branch    string
 	BuildDate string
@@ -30,6 +31,7 @@ var (
 )
 
 // Print writes application version details to standard output.
+// nolint: forbidigo
 func Print() {
 	// TODO remove hard coded "git2consul" string here
 	// TODO update e2e version test once "git2consul" as described

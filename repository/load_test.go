@@ -26,16 +26,16 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/discard"
-	"github.com/stretchr/testify/assert"
 	git "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
 	log.SetHandler(discard.New())
 }
 
-//TestLoadRepos test load repos from the configuration file.
+// TestLoadRepos test load repos from the configuration file.
 func TestLoadRepos(t *testing.T) {
 	_, remotePath := mocks.InitRemote(t)
 	defer os.RemoveAll(remotePath)
@@ -46,7 +46,7 @@ func TestLoadRepos(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-//TestLoadReposExistingDir tests load to existing repo.
+// TestLoadReposExistingDir tests load to existing repo.
 func TestLoadReposExistingDir(t *testing.T) {
 	bareDir, err := ioutil.TempDir("", "bare-dir")
 	defer os.RemoveAll(bareDir)
@@ -60,7 +60,7 @@ func TestLoadReposExistingDir(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-//TestLoadReposInvalidRepo verifies failure in case wrong url provided.
+// TestLoadReposInvalidRepo verifies failure in case wrong url provided.
 func TestLoadReposInvalidRepo(t *testing.T) {
 	cfg := mock.Config("bogus-url")
 	defer os.RemoveAll(cfg.LocalStore)
@@ -77,7 +77,7 @@ func TestLoadReposExistingRepo(t *testing.T) {
 	localRepoPath := filepath.Join(cfg.LocalStore, cfg.Repos[0].Name)
 
 	// Init a repo in the local store, with same name are the "remote"
-	err := os.Mkdir(localRepoPath, 0755)
+	err := os.Mkdir(localRepoPath, 0o755)
 	assert.Nil(t, err)
 
 	repo, err := git.PlainInit(localRepoPath, false)

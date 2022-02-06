@@ -17,6 +17,7 @@ limitations under the License.
 package runner
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -46,24 +47,24 @@ type Runner struct {
 }
 
 // NewRunner creates a new runner instance
-func NewRunner(config *config.Config, once bool) (*Runner, error) {
+func NewRunner(cfg *config.Config, once bool) (*Runner, error) {
 	// var repos repository.Repo
 	logger := log.WithField("caller", "runner")
 
 	// Create repos from configuration
-	repos, err := repository.LoadRepos(config)
+	repos, err := repository.LoadRepos(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot load repositories from configuration: %s", err)
+		return nil, fmt.Errorf("Cannot load repositories from configuration: %w", err)
 	}
-	var reposI = make([]repository.Repo, len(repos))
+	reposI := make([]repository.Repo, len(repos))
 	for index, repo := range repos {
 		reposI[index] = repo
 	}
 	// Create watcher to watch for repo changes
-	watcher := watch.New(reposI, config.Webhook, once)
+	watcher := watch.New(reposI, cfg.Webhook, once)
 
 	// Create the handler
-	handler, err := kv.New(config.Consul)
+	handler, err := kv.New(cfg.Consul)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,8 @@ func (r *Runner) Start() {
 			var err error
 			for ok := true; ok && retry < 3; retry++ {
 				err = r.kvHandler.HandleUpdate(repo)
-				_, ok = err.(*kv.TransactionIntegrityError)
+				var tiErr kv.TransactionIntegrityError
+				ok = errors.As(err, &tiErr)
 				time.Sleep(1000 * time.Millisecond)
 			}
 			if err != nil {

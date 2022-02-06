@@ -29,7 +29,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//TestPutKVRef test functionality of putKVRef function.
+// TestPutKVRef test functionality of putKVRef function.
 func TestKVRef(t *testing.T) {
 	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}, T: t}
 	repo.Pull("master") //nolint:errcheck
@@ -37,7 +37,8 @@ func TestKVRef(t *testing.T) {
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
 			"caller": "consul",
-		})}
+		}),
+	}
 	branch, err := repo.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -61,7 +62,6 @@ func testPutKVRef(t *testing.T, branch string, key string, commit string, handle
 	}
 	kvBranch, _, _ := handler.Get(key, nil)
 	assert.Equal(t, string(kvBranch.Value), commit)
-
 }
 
 func testPutKVRefModifiedIndex(t *testing.T, branch string, key string, commit string, handler *KVHandler, repo repository.Repo) {

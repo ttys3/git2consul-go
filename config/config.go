@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 import (
-	"gopkg.in/yaml.v2"
 	"io"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Config is used to represent the passed in configuration
@@ -61,12 +62,12 @@ func (c Config) DumpSampleConfig(w io.Writer) error {
 	}
 
 	c.Repos = []*Repo{
-		&Repo{
+		{
 			Name:     "consul-kv-config",
 			URL:      "ssh://git@git.nomad.lan:2222/ttys3/consul-kv-config.git",
 			Branches: []string{"main"},
 			Hooks: []*Hook{
-				&Hook{
+				{
 					Type:     "webhook",
 					Interval: 30 * time.Second,
 					URL:      "",

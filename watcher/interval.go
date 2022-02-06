@@ -17,10 +17,12 @@ limitations under the License.
 package watch
 
 import (
-	"github.com/apex/log"
+	"errors"
 	"path"
 	"sync"
 	"time"
+
+	"github.com/apex/log"
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
 	"github.com/go-git/go-git/v5"
@@ -89,7 +91,7 @@ func (w *Watcher) pollBranches(repo repository.Repo) error {
 		if branchOnRemote {
 			branchName := b.Name().Short()
 			err := repo.Pull(branchName)
-			if err == git.NoErrAlreadyUpToDate {
+			if errors.Is(err, git.NoErrAlreadyUpToDate) {
 				w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
 			} else if err != nil {
 				w.logger.Debugf("Unable to pull \"%s\" branch because of \"%s\"", branchName, err)

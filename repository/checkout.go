@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/apex/log"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -31,14 +33,19 @@ func (r *Repository) checkoutConfigBranches() error {
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 	})
+	if err != nil {
+		log.WithField("error", err.Error()).Error("checkoutConfigBranches Fetch failed")
+	}
 
 	w, err := r.Worktree()
-
 	if err != nil {
 		return err
 	}
 
 	refIter, err := remoteBranches(r.Storer) //nolint:ineffassign,staticcheck
+	if err != nil {
+		log.WithField("error", err.Error()).Error("checkoutConfigBranches remoteBranches failed")
+	}
 
 	_ = refIter.ForEach(func(b *plumbing.Reference) error {
 		branchOnRemote := StringInSlice(path.Base(b.Name().String()), r.Config.Branches)
@@ -57,16 +64,18 @@ func (r *Repository) checkoutConfigBranches() error {
 	return nil
 }
 
-//CheckoutBranch performs a checkout on the specific branch
+// CheckoutBranch performs a checkout on the specific branch
 func (r *Repository) CheckoutBranch(branch plumbing.ReferenceName) error {
 	err := r.Fetch(&git.FetchOptions{ //nolint:ineffassign,staticcheck
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 		Force:    true,
 	})
+	if err != nil {
+		log.WithField("error", err.Error()).Error("CheckoutBranch Fetch failed")
+	}
 
 	w, err := r.Worktree()
-
 	if err != nil {
 		return err
 	}
@@ -94,7 +103,7 @@ func remoteBranches(s storer.ReferenceStorer) (storer.ReferenceIter, error) {
 	}, refs), nil
 }
 
-//LocalBranches returns an iterator to iterate only over local branches.
+// LocalBranches returns an iterator to iterate only over local branches.
 func LocalBranches(s storer.ReferenceStorer) (storer.ReferenceIter, error) {
 	refs, err := s.IterReferences()
 	if err != nil {
@@ -106,7 +115,7 @@ func LocalBranches(s storer.ReferenceStorer) (storer.ReferenceIter, error) {
 	}, refs), nil
 }
 
-//StringInSlice checks if value exists within slice.
+// StringInSlice checks if value exists within slice.
 func StringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {

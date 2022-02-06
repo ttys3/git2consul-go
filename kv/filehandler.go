@@ -17,7 +17,7 @@ limitations under the License.
 package kv
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -63,7 +63,7 @@ func Init(path string, repo repository.Repo) File {
 }
 
 func getContent(f File) ([]byte, error) {
-	content, err := ioutil.ReadFile(f.GetPath())
+	content, err := os.ReadFile(f.GetPath())
 	if err != nil {
 		return nil, err
 	}

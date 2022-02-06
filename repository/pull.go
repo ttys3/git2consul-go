@@ -29,7 +29,6 @@ func (r *Repository) Pull(branchName string) error {
 	defer r.Unlock()
 
 	w, err := r.Worktree()
-
 	if err != nil {
 		return err
 	}

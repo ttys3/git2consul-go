@@ -36,7 +36,7 @@ func (h *KVHandler) putBranch(repo repository.Repo, branch plumbing.ReferenceNam
 	// log.Debugf("(consul) pushBranch(): Branch: %s Head: %s", bn, h.Target().String())
 	workdir := repository.WorkDir(repo)
 	sourceRoot := repo.GetConfig().SourceRoot
-	var pushFile = func(fullpath string, info os.FileInfo, err error) error {
+	pushFile := func(fullpath string, info os.FileInfo, err error) error {
 		// Walk error
 		if err != nil {
 			return err

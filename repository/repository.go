@@ -17,6 +17,7 @@ limitations under the License.
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -124,11 +125,11 @@ func (r *Repository) init(repoPath string) (int, error) {
 		if err != nil {
 			// more explicit error handling as a workaround for the upstream issue, tracked under:
 			// https://github.com/src-d/go-git/issues/741
-			switch err {
-			case transport.ErrAuthenticationRequired:
+			switch {
+			case errors.Is(err, transport.ErrAuthenticationRequired):
 				os.RemoveAll(repoPath)
 				return RepositoryError, err
-			case transport.ErrAuthorizationFailed:
+			case errors.Is(err, transport.ErrAuthorizationFailed):
 				os.RemoveAll(repoPath)
 				return RepositoryError, err
 			default:
@@ -143,7 +144,7 @@ func (r *Repository) init(repoPath string) (int, error) {
 	return RepositoryOpened, nil
 }
 
-//WorkDir returns working directory for a local copy of the repository.
+// WorkDir returns working directory for a local copy of the repository.
 func WorkDir(r Repo) string {
 	w, _ := r.Worktree()
 	return w.Filesystem.Root()

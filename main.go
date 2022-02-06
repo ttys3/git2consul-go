@@ -18,10 +18,11 @@ package main
 
 import (
 	"flag"
-	"github.com/apex/log/handlers/text"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/apex/log/handlers/text"
 
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/pkg/version"
@@ -41,7 +42,6 @@ const (
 )
 
 func main() {
-
 	var (
 		filename         string
 		printVersion     bool
@@ -74,7 +74,7 @@ func main() {
 	}
 
 	// Init checks
-	if len(filename) == 0 {
+	if filename == "" {
 		log.Error("No configuration file provided")
 		flag.Usage()
 		os.Exit(ExitCodeFlagError)
@@ -102,12 +102,12 @@ func main() {
 
 	log.WithField("config", cfg.String()).Info("loaded config")
 
-	runner, err := runner.NewRunner(cfg, once)
+	theRunner, err := runner.NewRunner(cfg, once)
 	if err != nil {
 		log.Errorf("(runner): %s", err)
 		os.Exit(ExitCodeConfigError)
 	}
-	go runner.Start()
+	go theRunner.Start()
 
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh,
@@ -119,15 +119,15 @@ func main() {
 
 	for {
 		select {
-		case err := <-runner.ErrCh:
+		case err := <-theRunner.ErrCh:
 			log.WithError(err).Error("Runner error")
 			os.Exit(ExitCodeError)
-		case <-runner.SndDoneCh: // Used for cases like -once, where program is not terminated by interrupt
+		case <-theRunner.SndDoneCh: // Used for cases like -once, where program is not terminated by interrupt
 			log.Info("Terminating git2consul")
 			os.Exit(ExitCodeOk)
 		case <-signalCh:
 			log.Info("Received interrupt. Cleaning up...")
-			runner.Stop()
+			theRunner.Stop()
 		}
 	}
 }
@@ -142,6 +142,7 @@ func initLogger(level string, format string) {
 	case "cli":
 		log.SetHandler(cli.New(os.Stderr))
 	case "text":
+		// nolint: gocritic
 		fallthrough
 	default:
 		log.SetHandler(text.New(os.Stderr))

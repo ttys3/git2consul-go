@@ -31,7 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//TestPutBranch verifies putBranch function.
+// TestPutBranch verifies putBranch function.
 func TestPutBranch(t *testing.T) {
 	var repo repository.Repo
 	_, path, _, _ := runtime.Caller(0)

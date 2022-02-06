@@ -20,6 +20,8 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/apex/log"
+
 	"github.com/hashicorp/consul/api"
 )
 
@@ -66,6 +68,7 @@ func (kv *KV) Txn(txnops api.KVTxnOps, opts *api.QueryOptions) (bool, *api.KVTxn
 		checkIndexItem = txnops[length-2]
 	}
 	for _, item := range txnops {
+		// nolint: exhaustive
 		switch item.Verb {
 		case api.KVSet:
 			if checkIndexItem != nil && item.Key == checkIndexItem.Key {
@@ -77,6 +80,8 @@ func (kv *KV) Txn(txnops api.KVTxnOps, opts *api.QueryOptions) (bool, *api.KVTxn
 			kv.Put(&api.KVPair{Key: item.Key, Value: item.Value}, nil) //nolint:errcheck
 		case api.KVDelete:
 			kv.Delete(item.Key, nil) //nolint:errcheck
+		default:
+			log.WithField("KVOp", item.Verb).Error("unhandled consul KVOp")
 		}
 	}
 	return true, nil, nil, nil

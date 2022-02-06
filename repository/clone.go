@@ -36,7 +36,6 @@ func (r *Repository) Clone(path string) error {
 		URL:  r.Config.URL,
 		Auth: r.Authentication,
 	})
-
 	if err != nil {
 		return err
 	}

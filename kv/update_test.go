@@ -50,17 +50,17 @@ func TestUpdateToHead(t *testing.T) {
 	assert.NoError(t, err)
 	initialCommit := branch.Hash().String()
 	repo.Pull(branch.Name().Short()) //nolint:errcheck
-	//Make an initial load to the Consul KV store.
+	// Make an initial load to the Consul KV store.
 	handler.putBranch(repo, branch.Name())        //nolint:errcheck
 	handler.putKVRef(repo, branch.Name().Short()) //nolint:errcheck
-	//Fake commit
+	// Fake commit
 	f, err := ioutil.TempFile(repoPath, "example.txt")
 	assert.NoError(t, err)
 	f.Write([]byte("A content!")) //nolint:errcheck
 	f.Close()
 	fileName := strings.TrimPrefix(f.Name(), repoPath)
 	repo.Add(fileName)
-	//Pull the change.
+	// Pull the change.
 	repo.Pull(branch.Name().Short()) //nolint:errcheck
 
 	err = handler.UpdateToHead(repo)
@@ -68,7 +68,7 @@ func TestUpdateToHead(t *testing.T) {
 	branch, err = repo.Head()
 	assert.NoError(t, err)
 
-	//Ensure ref has been updated
+	// Ensure ref has been updated
 	refFile := fmt.Sprintf("%s.ref", branch.Name().Short())
 	key := path.Join(repo.Name(), refFile)
 

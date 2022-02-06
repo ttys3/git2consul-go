@@ -62,14 +62,13 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 		if !ref.Name().IsRemote() {
 			h.logger.Infof("KV GET ref: %s/%s", repo.Name(), ref.Name())
 			kvRef, err := h.getKVRef(repo, ref.Name().String())
-
 			if err != nil {
 				return err
 			}
 
 			localRef := ref.Hash().String()
 
-			if len(kvRef) == 0 {
+			if kvRef == "" {
 				// There is no ref in the KV, push the entire branch
 				h.logger.Infof("KV PUT changes: %s/%s", repo.Name(), ref.Name())
 				h.putBranch(repo, plumbing.ReferenceName(ref.Name().Short())) //nolint:errcheck
@@ -77,7 +76,7 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 				h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), ref.Name())
 				h.putKVRef(repo, ref.Name().String()) //nolint:errcheck
 			} else if kvRef != localRef {
-				//Check if the ref belongs to that repo
+				// Check if the ref belongs to that repo
 				err := repo.CheckRef(kvRef)
 				if err != nil {
 					return err
@@ -98,6 +97,7 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 			}
 		}
 	}
+	// nolint: nilerr
 	return nil
 }
 

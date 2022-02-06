@@ -41,8 +41,8 @@ type TransactionIntegrityError struct {
 func (e *TransactionIntegrityError) Error() string { return e.msg }
 
 // New creates new KV handler to manipulate the Consul VK
-func New(config *config.ConsulConfig) (*KVHandler, error) {
-	client, err := newAPIClient(config)
+func New(cfg *config.ConsulConfig) (*KVHandler, error) {
+	client, err := newAPIClient(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -62,37 +62,37 @@ func New(config *config.ConsulConfig) (*KVHandler, error) {
 	return handler, nil
 }
 
-func newAPIClient(config *config.ConsulConfig) (*api.Client, error) {
+func newAPIClient(cfg *config.ConsulConfig) (*api.Client, error) {
 	consulConfig := api.DefaultConfig()
 
-	if config.Address != "" {
-		consulConfig.Address = config.Address
+	if cfg.Address != "" {
+		consulConfig.Address = cfg.Address
 	}
 
-	if config.Token != "" {
-		consulConfig.Token = config.Token
+	if cfg.Token != "" {
+		consulConfig.Token = cfg.Token
 	}
 
-	if config.SSLEnable {
+	if cfg.SSLEnable {
 		consulConfig.Scheme = "https"
 	}
 
-	if config.TLSConfig.InsecureSkipVerify {
+	if cfg.TLSConfig.InsecureSkipVerify {
 		consulConfig.TLSConfig.InsecureSkipVerify = true
 	}
 
-	// mTLS config
-	if config.TLSConfig.CAFile != "" {
-		consulConfig.TLSConfig.CAFile = config.TLSConfig.CAFile
+	// mTLS cfg
+	if cfg.TLSConfig.CAFile != "" {
+		consulConfig.TLSConfig.CAFile = cfg.TLSConfig.CAFile
 	}
-	if config.TLSConfig.CertFile != "" {
-		consulConfig.TLSConfig.CertFile = config.TLSConfig.CertFile
+	if cfg.TLSConfig.CertFile != "" {
+		consulConfig.TLSConfig.CertFile = cfg.TLSConfig.CertFile
 	}
-	if config.TLSConfig.KeyFile != "" {
-		consulConfig.TLSConfig.KeyFile = config.TLSConfig.KeyFile
+	if cfg.TLSConfig.KeyFile != "" {
+		consulConfig.TLSConfig.KeyFile = cfg.TLSConfig.KeyFile
 	}
-	if config.TLSConfig.ServerName != "" {
-		consulConfig.TLSConfig.Address = config.TLSConfig.ServerName
+	if cfg.TLSConfig.ServerName != "" {
+		consulConfig.TLSConfig.Address = cfg.TLSConfig.ServerName
 	}
 
 	client, err := api.NewClient(consulConfig)
@@ -139,10 +139,11 @@ func (h *KVHandler) Commit() error {
 	defer func() {
 		h.KVTxnOps = nil
 	}()
-	var kvTxnOps = h.KVTxnOps
+	kvTxnOps := h.KVTxnOps
 	// move modify index check to the end
 	if h.KVTxnOps[0].Verb == api.KVCheckIndex {
 		length := len(h.KVTxnOps)
+		// nolint: gocritic
 		kvTxnOps = append(h.KVTxnOps[1:length-1], h.KVTxnOps[0], h.KVTxnOps[length-1])
 	}
 	for _, slice := range h.splitIntoSlices(kvTxnOps, consulTxnSize) {
@@ -154,12 +155,12 @@ func (h *KVHandler) Commit() error {
 	return nil
 }
 
-func (h *KVHandler) executeTransaction(KVTxnOps api.KVTxnOps) error {
-	status, response, _, err := h.Txn(KVTxnOps, nil)
+func (h *KVHandler) executeTransaction(kvTxnOps api.KVTxnOps) error {
+	status, response, _, err := h.Txn(kvTxnOps, nil)
 	if err != nil {
 		return err
 	}
-	h.logger.Debugf("Transaction with %d items was sent to the KV store", len(KVTxnOps))
+	h.logger.Debugf("Transaction with %d items was sent to the KV store", len(kvTxnOps))
 	if !status {
 		errMsg := ""
 		for _, txError := range response.Errors {

@@ -17,12 +17,13 @@ limitations under the License.
 package repository
 
 import (
+	"net"
+
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	xssh "golang.org/x/crypto/ssh"
-	"net"
 )
 
 // GetAuth returns AuthMethod based on the passed flags
@@ -36,8 +37,8 @@ func GetAuth(repo *config.Repo) (transport.AuthMethod, error) {
 			Username: repo.Credentials.Username,
 			Password: repo.Credentials.Password,
 		}
-	} else if len(repo.Credentials.PrivateKey.Key) > 0 {
-		if len(repo.Credentials.PrivateKey.Username) == 0 {
+	} else if repo.Credentials.PrivateKey.Key != "" {
+		if repo.Credentials.PrivateKey.Username == "" {
 			repo.Credentials.PrivateKey.Username = "git"
 		}
 		publicKeyAuth, err := ssh.NewPublicKeysFromFile(

@@ -57,7 +57,7 @@ func Add(t *testing.T, repo *git.Repository, path string, content []byte) {
 	fileName := filepath.Base(path)
 	_, err = os.Stat(filepath.Join(root, dir))
 	if os.IsNotExist(err) {
-		err := os.Mkdir(filepath.Join(root, dir), 0700)
+		err := os.Mkdir(filepath.Join(root, dir), 0o700)
 		if err != nil {
 			t.Fatal(err)
 		}

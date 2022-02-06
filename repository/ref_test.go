@@ -23,8 +23,8 @@ import (
 
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
-	"github.com/stretchr/testify/assert"
 	git "github.com/go-git/go-git/v5"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckRef(t *testing.T) {
@@ -57,5 +57,4 @@ func TestCheckRef(t *testing.T) {
 
 	err = repo.CheckRef(ref)
 	assert.Nil(t, err)
-
 }

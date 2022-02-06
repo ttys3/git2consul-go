@@ -24,7 +24,7 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/repository"
 )
 
-//Status codes for path formatting
+// Status codes for path formatting
 const (
 	SourceRootNotInPrefix = iota
 	PathFormatterOK
@@ -34,25 +34,26 @@ const (
 func getItemKey(repo repository.Repo, filePath string) (string, int, error) {
 	return pathHandler(repo, filePath)
 }
+
 func pathHandler(repo repository.Repo, filePath string) (string, int, error) {
 	filePath = strings.TrimPrefix(filePath, repository.WorkDir(repo))
 	basePath, status, err := pathBaseBuilder(repo)
 	if err != nil {
-		return "", status, fmt.Errorf("Couldn't format the base of the path: %s", err)
+		return "", status, fmt.Errorf("Couldn't format the base of the path: %w", err)
 	}
 	corePath, status, err := pathCoreBuilder(repo, filePath)
 	if err != nil {
 		return "", status, err
 	}
-	path := path.Join(basePath, corePath)
+	itemPath := path.Join(basePath, corePath)
 
-	return path, PathFormatterOK, nil
+	return itemPath, PathFormatterOK, nil
 }
 
 func pathBaseBuilder(repo repository.Repo) (string, int, error) {
 	config := repo.GetConfig()
 	mountPoint := config.MountPoint
-	key := ""
+	var key string
 	repoName := ""
 	if !config.SkipRepoName {
 		repoName = repo.Name()

@@ -36,12 +36,12 @@ func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 
 		auth, err := GetAuth(repoConfig)
 		if err != nil {
-			return nil, fmt.Errorf("Error getting AuthMethod: %s", err)
+			return nil, fmt.Errorf("Error getting AuthMethod: %w", err)
 		}
 
 		r, state, err := New(cfg.LocalStore, repoConfig, auth)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading %s: %s", repoConfig.Name, err)
+			return nil, fmt.Errorf("Error loading %s: %w", repoConfig.Name, err)
 		}
 
 		switch state {

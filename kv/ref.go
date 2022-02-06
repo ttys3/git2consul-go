@@ -21,8 +21,8 @@ import (
 	"path"
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
-	"github.com/hashicorp/consul/api"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/hashicorp/consul/api"
 )
 
 // Get local branch ref from the KV
@@ -39,7 +39,7 @@ func (h *KVHandler) getKVRef(repo repository.Repo, branchName string) (string, e
 	if pair == nil {
 		return "", nil
 	}
-	//store the last modify index
+	// store the last modify index
 	txnItem := &api.KVTxnOp{
 		Verb:  api.KVCheckIndex,
 		Index: pair.ModifyIndex,

@@ -24,8 +24,8 @@ import (
 
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
-	"github.com/stretchr/testify/assert"
 	git "github.com/go-git/go-git/v5"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPull(t *testing.T) {
@@ -53,5 +53,4 @@ func TestPull(t *testing.T) {
 
 	_, err = os.Stat(filepath.Join(dstPath, "tree/test.yml"))
 	assert.Nil(t, err)
-
 }
