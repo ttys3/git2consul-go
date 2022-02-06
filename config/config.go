@@ -73,10 +73,18 @@ type HookSvrConfig struct {
 
 // ConsulConfig is the configuration for the Consul client
 type ConsulConfig struct {
-	Address   string `json:"address"`
+	Address   string `json:"address"` // default is 127.0.0.1:8500
 	Token     string `json:"token,omitempty"`
 	SSLEnable bool   `json:"ssl"`
 	SSLVerify bool   `json:"ssl_verify,omitempty"`
+	// can also set from env, see github.com/hashicorp/consul/api@v1.12.0/api.go
+	// consul api.DefaultConfig() will handle these env vars
+	// if mTLS is enabled on consul, below env vars should be configured
+	// api.TLSConfig.Address CONSUL_TLS_SERVER_NAME
+	// api.TLSConfig.CAFile CONSUL_CACERT
+	// api.TLSConfig.CertFile CONSUL_CLIENT_CERT
+	// api.TLSConfig.KeyFile CONSUL_CLIENT_KEY
+	// api.TLSConfig.InsecureSkipVerify CONSUL_HTTP_SSL_VERIFY
 }
 
 func (r *Repo) String() string {
