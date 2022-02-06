@@ -37,16 +37,17 @@ func (h *KVHandler) HandleUpdate(repo repository.Repo) error {
 	}
 
 	for _, branch := range config.Branches {
+		ref := fmt.Sprintf("refs/heads/%s", branch)
 		err := w.Checkout(&git.CheckoutOptions{
-			Branch: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
+			Branch: plumbing.ReferenceName(ref),
 			Force:  true,
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("checkout %s failed: %w", ref, err)
 		}
 		err = h.UpdateToHead(repo)
 		if err != nil {
-			return err
+			return fmt.Errorf("updateToHead %s failed: %w", repo.Name(), err)
 		}
 	}
 	return nil
@@ -56,25 +57,25 @@ func (h *KVHandler) HandleUpdate(repo repository.Repo) error {
 func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
 	head, err := repo.Head()
 	if err != nil {
-		return err
+		return fmt.Errorf("get repo head failed, err=%w", err)
 	}
 	refName := head.Name().Short()
 	if err != nil {
-		return err
+		return fmt.Errorf("get repo short ref name failed, err=%w", err)
 	}
 
 	h.logger.Infof("KV GET ref: %s/%s", repo.Name(), refName)
 	kvRef, err := h.getKVRef(repo, refName)
 	if err != nil {
-		return err
+		return fmt.Errorf("getKVRef failed, refName=%v err=%w", refName, err)
 	}
 
 	// Local ref
-	refHash := head.Hash().String()
+	headRefHash := head.Hash().String()
 	// log.Debugf("(consul) kvRef: %s | localRef: %s", kvRef, localRef)
 
 	if kvRef == "" {
-		log.Infof("KV PUT changes: %s/%s", repo.Name(), refName)
+		log.Infof("init KV PUT branch: %s/%s", repo.Name(), refName)
 		err := h.putBranch(repo, plumbing.ReferenceName(head.Name().Short()))
 		if err != nil {
 			return err
@@ -84,8 +85,8 @@ func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
 		if err != nil {
 			return err
 		}
-		h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), refName)
-	} else if kvRef != refHash {
+		h.logger.Infof("init KV PUT ref: %s/%s", repo.Name(), refName)
+	} else if kvRef != headRefHash {
 		// Check if the ref belongs to that repo
 		err := repo.CheckRef(refName)
 		if err != nil {
@@ -97,13 +98,19 @@ func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
 		if err != nil {
 			return err
 		}
-		h.handleDeltas(repo, deltas) //nolint:errcheck
+		err = h.handleDeltas(repo, deltas)
+		if err != nil {
+			h.logger.Errorf("handleDeltas error: %v, repo=%v", err, repo)
+			// TODO should we return err here?
+		}
 
 		err = h.putKVRef(repo, refName)
 		if err != nil {
 			return err
 		}
-		h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), refName)
+		h.logger.Infof("KV PUT ref change: %s/%s", repo.Name(), refName)
+	} else {
+		h.logger.Infof("KV ref is update to date: %s/%s", repo.Name(), refName)
 	}
 
 	return nil
