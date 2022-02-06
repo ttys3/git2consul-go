@@ -24,19 +24,11 @@ dump:
 run:
 	./$(BINARY) -loglvl debug -config ./config.sample.yaml
 
-build/image:
+image/build:
 	sudo podman build -t git2consul:$(TAG) .
 
-push/image:
+image/push:
 	sudo podman push --authfile /etc/containers/auth.json git2consul:$(TAG) docker.io/80x86/git2consul:$(TAG)
-
-.PHONY: vendor
-vendor:
-	go mod vendor
-
-.PHONY: image
-image:
-	docker build . -t quay.io/kohlstechnology/git2consul:latest
 
 .PHONY: test
 test: lint-all test-unit
