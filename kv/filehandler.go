@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // File interface to manipulate data from various types

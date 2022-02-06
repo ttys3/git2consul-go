@@ -27,7 +27,7 @@ import (
 
 	"github.com/KohlsTechnology/git2consul-go/repository"
 	"github.com/stretchr/testify/assert"
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type mockHandler struct {

@@ -20,7 +20,7 @@ import (
 	"io"
 	"time"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Config is used to represent the passed in configuration

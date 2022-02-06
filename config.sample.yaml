@@ -1,23 +1,23 @@
 local_store: /var/lib/git2consul
 webhook:
-  port: 8484
+    port: 8484
 repos:
-- name: consul-kv-config
-  url: ssh://git@git.nomad.lan:2222/ttys3/consul-kv-config.git
-  branches:
-  - main
-  hooks:
-  - type: webhook
-    interval: 30s
-    url: ""
-  source_root: /
-  mount_point: ""
-  skip_branch_name: true
-  credentials:
-    private_key:
-      key: ~/.ssh/id_ed25519
-      skip_host_key_check: true
-      username: git
+    - name: consul-kv-config
+      url: ssh://git@git.nomad.lan:2222/ttys3/consul-kv-config.git
+      branches:
+        - main
+      hooks:
+        - type: webhook
+          interval: 30s
+          url: ""
+      source_root: /
+      mount_point: ""
+      skip_branch_name: true
+      credentials:
+        private_key:
+            key: ~/.ssh/id_ed25519
+            skip_host_key_check: true
+            username: git
 consul:
-  address: 127.0.0.1:8500
-  ssl_enable: false
+    address: 127.0.0.1:8500
+    ssl_enable: false
