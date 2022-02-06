@@ -151,21 +151,22 @@ func (f *YAMLFile) GetPath() string {
 func entriesToKV(node map[interface{}]interface{}) map[string][]byte {
 	keys := make(map[string][]byte)
 	for key, value := range node {
-		switch value.(type) {
+		// https://go-critic.com/overview.html#typeSwitchVar-ref
+		switch value := value.(type) {
 		case string:
-			keys[key.(string)] = []byte(value.(string))
+			keys[key.(string)] = []byte(value)
 		case int:
-			keys[key.(string)] = []byte(strconv.Itoa(value.(int)))
+			keys[key.(string)] = []byte(strconv.Itoa(value))
 		case bool:
-			keys[key.(string)] = []byte(strconv.FormatBool(value.(bool)))
+			keys[key.(string)] = []byte(strconv.FormatBool(value))
 		case float64:
-			keys[key.(string)] = []byte(strconv.FormatFloat(value.(float64), 'f', 2, 64))
+			keys[key.(string)] = []byte(strconv.FormatFloat(value, 'f', 2, 64))
 		case map[interface{}]interface{}:
-			for k, v := range entriesToKV(value.(map[interface{}]interface{})) {
+			for k, v := range entriesToKV(value) {
 				keys[filepath.Join(key.(string), k)] = v
 			}
 		case []interface{}:
-			for index, item := range value.([]interface{}) {
+			for index, item := range value {
 				for k, v := range entriesToKV(item.(map[interface{}]interface{})) {
 					keys[filepath.Join(key.(string), strconv.Itoa(index), k)] = v
 				}
