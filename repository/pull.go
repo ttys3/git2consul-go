@@ -25,8 +25,8 @@ import (
 
 // Pull a repository branch, which is equivalent to a fetch and merge
 func (r *Repository) Pull(branchName string) error {
-	r.Lock()
-	defer r.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	w, err := r.Worktree()
 	if err != nil {

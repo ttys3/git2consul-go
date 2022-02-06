@@ -50,7 +50,11 @@ type Repo interface {
 
 // Repository is used to hold the git repository object and it's configuration
 type Repository struct {
-	sync.Mutex
+	// If you use a struct by pointer, then the mutex should be a non-pointer field on it.
+	// Do not embed the mutex on the struct, even if the struct is not exported.
+	// see https://github.com/uber-go/guide/blob/master/style.md#zero-value-mutexes-are-valid
+	// see also gocritic exposedSyncMutex https://go-critic.com/overview.html#exposedsyncmutex
+	mu sync.Mutex
 
 	*git.Repository
 	Config         *config.Repo
@@ -91,6 +95,14 @@ func (r *Repository) Branch() plumbing.ReferenceName {
 	}
 
 	return bn
+}
+
+func (r *Repository) Lock() {
+	r.mu.Lock()
+}
+
+func (r *Repository) Unlock() {
+	r.mu.Unlock()
 }
 
 // New is used to construct a new repository object from the configuration

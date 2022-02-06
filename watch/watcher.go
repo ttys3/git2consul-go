@@ -26,7 +26,6 @@ import (
 
 // Watcher is used to keep track of changes of the repositories
 type Watcher struct {
-	sync.Mutex
 	logger *log.Entry
 
 	Repositories []repository.Repo

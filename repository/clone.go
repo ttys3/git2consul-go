@@ -25,8 +25,8 @@ import (
 // Clone the repository. Cloning will only checkout tracked branches.
 // A destination path to clone to needs to be provided
 func (r *Repository) Clone(path string) error {
-	r.Lock()
-	defer r.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	if len(r.Config.Branches) == 0 {
 		return fmt.Errorf("No tracked branches specified")
