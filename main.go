@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"github.com/apex/log/handlers/text"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,8 +27,8 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/pkg/version"
 	"github.com/KohlsTechnology/git2consul-go/runner"
 	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
 	"github.com/apex/log/handlers/json"
-	"github.com/apex/log/handlers/text"
 )
 
 // Exit code represented as int values for particular errors.
@@ -44,19 +45,19 @@ func main() {
 	var (
 		filename         string
 		printVersion     bool
-		debug            bool
 		once             bool
 		dumpSampleConfig bool
+		loglvl           string
 		logfmt           string
 	)
 
 	flag.StringVar(&filename, "config", "", "path to config file")
 	flag.BoolVar(&printVersion, "version", false, "show version")
-	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
 	flag.BoolVar(&dumpSampleConfig, "dump", false, "dump sample config")
 	// allow switching logformat. Structured output helps with parsers
-	flag.StringVar(&logfmt, "logfmt", "text", "specify log format [text | json] ")
+	flag.StringVar(&logfmt, "logfmt", "", "specify log format [ text | cli | json] ")
+	flag.StringVar(&loglvl, "loglvl", "", "set log level")
 	flag.Parse()
 
 	if printVersion {
@@ -79,17 +80,8 @@ func main() {
 		os.Exit(ExitCodeFlagError)
 	}
 
-	if debug {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	// TODO: Accept other logger inputs
-	switch logfmt {
-	case "text":
-		log.SetHandler(text.New(os.Stderr))
-	case "json":
-		log.SetHandler(json.New(os.Stderr))
-	}
+	// init before load config
+	initLogger("debug", "text")
 
 	log.WithField("caller", "main").Infof("Starting git2consul version: %s", version.Version)
 
@@ -99,6 +91,16 @@ func main() {
 		log.Errorf("(config): %s", err)
 		os.Exit(ExitCodeConfigError)
 	}
+
+	if logfmt != "" {
+		cfg.Log.Format = logfmt
+	}
+	if loglvl != "" {
+		cfg.Log.Level = loglvl
+	}
+	initLogger(cfg.Log.Level, cfg.Log.Format)
+
+	log.WithField("config", cfg.String()).Info("loaded config")
 
 	runner, err := runner.NewRunner(cfg, once)
 	if err != nil {
@@ -127,5 +129,21 @@ func main() {
 			log.Info("Received interrupt. Cleaning up...")
 			runner.Stop()
 		}
+	}
+}
+
+func initLogger(level string, format string) {
+	logLevel := log.MustParseLevel(level)
+	log.SetLevel(logLevel)
+
+	switch format {
+	case "json":
+		log.SetHandler(json.New(os.Stderr))
+	case "cli":
+		log.SetHandler(cli.New(os.Stderr))
+	case "text":
+		fallthrough
+	default:
+		log.SetHandler(text.New(os.Stderr))
 	}
 }

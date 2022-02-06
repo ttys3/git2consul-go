@@ -27,7 +27,29 @@ type Config struct {
 	LocalStore string               `json:"local_store" yaml:"local_store"`
 	Webhook    *WebhookServerConfig `json:"webhook" yaml:"webhook"`
 	Repos      []*Repo              `json:"repos" yaml:"repos"`
-	Consul     *ConsulConfig        `json:"consul" yaml:"consul"`
+	Consul     *ConsulConfig        `json:"consul,omitempty" yaml:"consul,omitempty"`
+	Log        *LogConfig           `json:"log,omitempty" yaml:"log,omitempty"`
+}
+
+func (c Config) String() string {
+	out, err := yaml.Marshal(c)
+	if err != nil {
+		panic(err)
+	}
+	return string(out)
+}
+
+func (c Config) Dump(w io.Writer) error {
+	return dumping(w, c)
+}
+
+func dumping(w io.Writer, c Config) error {
+	out, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(out)
+	return err
 }
 
 func (c Config) DumpSampleConfig(w io.Writer) error {
@@ -72,12 +94,7 @@ func (c Config) DumpSampleConfig(w io.Writer) error {
 		Token:     "",
 		SSLEnable: false,
 	}
-	out, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(out)
-	return err
+	return dumping(w, c)
 }
 
 // Credentials is the representation of git authentication
@@ -119,6 +136,13 @@ type Repo struct {
 	Credentials    Credentials `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 }
 
+func (r *Repo) String() string {
+	if r != nil {
+		return r.Name
+	}
+	return ""
+}
+
 // WebhookServerConfig is the configuration for the git hoooks server
 type WebhookServerConfig struct {
 	Address string `json:"address,omitempty" yaml:"address,omitempty"`
@@ -145,9 +169,7 @@ type ConsulTLSConfig struct {
 	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty" yaml:"insecure_skip_verify,omitempty"` // api.TLSConfig.InsecureSkipVerify CONSUL_HTTP_SSL_VERIFY
 }
 
-func (r *Repo) String() string {
-	if r != nil {
-		return r.Name
-	}
-	return ""
+type LogConfig struct {
+	Format string `json:"format,omitempty" yaml:"format,omitempty"`
+	Level  string `json:"level,omitempty" yaml:"level,omitempty"`
 }

@@ -46,6 +46,7 @@ func Load(file string) (*Config, error) {
 	config := &Config{
 		Consul:  &ConsulConfig{},
 		Webhook: &WebhookServerConfig{},
+		Log:     &LogConfig{},
 	}
 	ext := filepath.Ext(file)
 	switch ext {
@@ -63,18 +64,12 @@ func Load(file string) (*Config, error) {
 	logger.Info("Setting configuration with sane defaults")
 	config.setDefaultConfig()
 	config.setDefaultConsulConfig()
+	config.setDefaultLogConfig()
 
 	err = config.checkConfig()
 	if err != nil {
 		return nil, err
 	}
-
-	jsonConfig, err := json.Marshal(config)
-	if err != nil {
-		return nil, err
-	}
-	logger.Debugf("Using configuration: %s", jsonConfig)
-
 	return config, nil
 }
 
@@ -173,5 +168,14 @@ func (c *Config) setDefaultConsulConfig() {
 
 	if c.Consul.Address == "" {
 		c.Consul.Address = defConfig.Address
+	}
+}
+
+func (c *Config) setDefaultLogConfig() {
+	if c.Log.Format == "" {
+		c.Log.Format = "text"
+	}
+	if c.Log.Level == "" {
+		c.Log.Level = "info"
 	}
 }

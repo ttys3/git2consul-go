@@ -22,7 +22,7 @@ dump:
 	./$(BINARY) -dump > ./config.sample.yaml
 
 run:
-	./$(BINARY) -debug -config ./config.sample.yaml
+	./$(BINARY) -loglvl debug -config ./config.sample.yaml
 
 .PHONY: vendor
 vendor:
