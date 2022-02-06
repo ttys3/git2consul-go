@@ -96,7 +96,10 @@ func (r *Runner) Start() {
 			var err error
 			for ok := true; ok && retry < 3; retry++ {
 				err = r.kvHandler.HandleUpdate(repo)
-				var tiErr kv.TransactionIntegrityError
+				tiErr := &kv.TransactionIntegrityError{}
+				// func As(err error, target interface{}) bool, `*target` must be `interface` or implement `error`
+				// in this case is, `*kv.TransactionIntegrityError` implement `error`,
+				// so our target param should be `**kv.TransactionIntegrityError`
 				ok = errors.As(err, &tiErr)
 				time.Sleep(1000 * time.Millisecond)
 			}
