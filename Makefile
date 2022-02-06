@@ -27,6 +27,9 @@ run:
 build/image:
 	sudo podman build -t git2consul:$(TAG) .
 
+push/image:
+	sudo podman push --authfile /etc/containers/auth.json git2consul:$(TAG) docker.io/80x86/git2consul:$(TAG)
+
 .PHONY: vendor
 vendor:
 	go mod vendor
