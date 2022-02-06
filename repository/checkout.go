@@ -33,7 +33,7 @@ func (r *Repository) checkoutConfigBranches() error {
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 	})
-	if err != nil {
+	if err != nil && err != git.NoErrAlreadyUpToDate {
 		log.WithField("error", err.Error()).Error("checkoutConfigBranches Fetch failed")
 	}
 
@@ -44,7 +44,7 @@ func (r *Repository) checkoutConfigBranches() error {
 
 	refIter, err := remoteBranches(r.Storer) //nolint:ineffassign,staticcheck
 	if err != nil {
-		log.WithField("error", err.Error()).Error("checkoutConfigBranches remoteBranches failed")
+		log.WithField("error", err.Error()).Warn("checkoutConfigBranches remoteBranches failed")
 	}
 
 	_ = refIter.ForEach(func(b *plumbing.Reference) error {
@@ -71,7 +71,7 @@ func (r *Repository) CheckoutBranch(branch plumbing.ReferenceName) error {
 		Auth:     r.Authentication,
 		Force:    true,
 	})
-	if err != nil {
+	if err != nil && err != git.NoErrAlreadyUpToDate {
 		log.WithField("error", err.Error()).Error("CheckoutBranch Fetch failed")
 	}
 
