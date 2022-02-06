@@ -27,7 +27,6 @@ import (
 	"time"
 
 	"github.com/apex/log"
-	"github.com/hashicorp/consul/api"
 )
 
 // Load maps the configuration provided from a file to a Configuration object
@@ -63,7 +62,6 @@ func Load(file string) (*Config, error) {
 
 	logger.Info("Setting configuration with sane defaults")
 	config.setDefaultConfig()
-	config.setDefaultConsulConfig()
 	config.setDefaultLogConfig()
 
 	err = config.checkConfig()
@@ -159,15 +157,6 @@ func (c *Config) setDefaultConfig() {
 				repo.Credentials.PrivateKey.Key = filepath.Join(dirname, repo.Credentials.PrivateKey.Key[2:])
 			}
 		}
-	}
-}
-
-// This is to return default values so that the returned JSON is correctly populated
-func (c *Config) setDefaultConsulConfig() {
-	defConfig := api.DefaultConfig()
-
-	if c.Consul.Address == "" {
-		c.Consul.Address = defConfig.Address
 	}
 }
 

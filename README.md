@@ -1,14 +1,15 @@
-[![Join the chat at https://gitter.im/KohlsTechnology/git2consul-go](https://badges.gitter.im/KohlsTechnology/git2consul-go.svg)](https://gitter.im/KohlsTechnology/git2consul-go?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.com/KohlsTechnology/git2consul-go.svg?branch=master)](https://travis-ci.com/KohlsTechnology/git2consul-go)
-[![codecov](https://codecov.io/gh/KohlsTechnology/git2consul-go/branch/master/graph/badge.svg)](https://codecov.io/gh/KohlsTechnology/git2consul-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/KohlsTechnology/git2consul-go)](https://goreportcard.com/report/github.com/KohlsTechnology/git2consul-go)
+[![Join the chat at https://gitter.im/ttys3/git2consul-go](https://badges.gitter.im/ttys3/git2consul-go.svg)](https://gitter.im/ttys3/git2consul-go?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.com/ttys3/git2consul-go.svg?branch=master)](https://travis-ci.com/ttys3/git2consul-go)
+[![codecov](https://codecov.io/gh/ttys3/git2consul-go/branch/master/graph/badge.svg)](https://codecov.io/gh/ttys3/git2consul-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ttys3/git2consul-go)](https://goreportcard.com/report/github.com/ttys3/git2consul-go)
 
 # git2consul-go
 
-The git2consul-go tool is used to populate a [Consul](https://www.consul.io) key/value store from a git repo.
+The [git2consul-go](https://github.com/ttys3/git2consul-go) is a tool used to synchronize config files from a git repo to [Consul](https://www.consul.io) key/value store.
 
-The baseline source code was forked from [go-git2consul](https://github.com/Cimpress-MCP/go-git2consul) which was
-inspired by the orginal [git2consul](https://github.com/breser/git2consul) tool.
+The baseline source code was forked from [KohlsTechnology/git2consul-go](https://github.com/KohlsTechnology/git2consul-go)
+which was forked from [Cimpress-MCP/go-git2consul](https://github.com/Cimpress-MCP/go-git2consul) which was
+inspired by the original [breser/git2consul](https://github.com/breser/git2consul) tool.
 
 ## Improvements Over NodeJS git2consul
 * uses the official Consul Go Lang client library
@@ -219,7 +220,7 @@ consul:
 See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 
 ### Dependencies
-* Go 1.15+
+* Go 1.17+
 
 ### Compiling From Source
 ```

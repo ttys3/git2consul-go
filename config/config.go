@@ -153,7 +153,7 @@ type WebhookServerConfig struct {
 
 // ConsulConfig is the configuration for the Consul client
 type ConsulConfig struct {
-	Address   string          `json:"address" yaml:"address"` // default is 127.0.0.1:8500
+	Address   string          `json:"address,omitempty" yaml:"address,omitempty"` // default to 127.0.0.1:8500 according to consul go SDK
 	Token     string          `json:"token,omitempty" yaml:"token,omitempty"`
 	SSLEnable bool            `json:"ssl_enable" yaml:"ssl_enable"`
 	TLSConfig ConsulTLSConfig `json:"tls_config" yaml:"tls_config,omitempty"`
