@@ -163,7 +163,7 @@ The "skip_repo_name" instructs the app to prune the repository name. If set to t
 The "credentials" option provides the possibility to pass the credentials to authenticate to private git repositories.
 
 Sample config with basic auth (login:password/token)
-```
+```yaml
 local_store: /var/lib/git2consul
 webhook:
   port: 8484
@@ -178,6 +178,7 @@ repos:
     url: ""
   source_root: /
   mount_point: ""
+  skip_branch_name: true
   credentials:
     username: foo
     password: bar
@@ -202,9 +203,11 @@ repos:
     url: ""
   source_root: /
   mount_point: ""
+  skip_branch_name: true
   credentials:
     private_key:
       key: ~/.ssh/id_ed25519
+      skip_host_key_check: true
       username: git
 consul:
   address: 127.0.0.1:8500
