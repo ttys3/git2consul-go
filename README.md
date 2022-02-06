@@ -73,30 +73,37 @@ configuration, it will be overwritten.
 
 git2consul will attempt to use sane defaults for configuration. However, since git2consul needs to know which repository to pull from, minimal configuration is necessary.
 
-| Configuration                             | Required | Default Value  | Available Values | Description                                                                      |
-|-------------------------------------------|----------|----------------|------------------|----------------------------------------------------------------------------------|
-| local_store                               | no       | `os.TempDir()` | `string`         | Local cache for git2consul to store its tracked repositories                     |
-| webhook:address                           | no       |                | `string`         | Webhook listener address that git2consul will be using                           |
-| webhook:port                              | no       | 9000           | `int`            | Webhook listener port that git2consul will be using                              |
-| repos:name                                | yes      |                | `string`         | Name of the repository. This will match the webhook path, if any are enabled     |
-| repos:url                                 | yes      |                | `string`         | The URL of the repository                                                        |
-| repos:branches                            | no       | master         | `string`         | Tracking branches of the repository                                              |
-| repos:source_root                         | no       |                | `string`         | Source root to apply on the repo.                                                |
-| repos:expand_keys                         | no       |                | true, false      | Enable/disable file content evaluation.                                          |
-| repos:skip_branch_name                    | no       | false          | true, false      | Enable/disable branch name pruning.                                              |
-| repos:skip_repo_name                      | no       | false          | true, false      | Enable/disable repository name pruning.                                          |
-| repos:mount_point                         | no       |                | `string`         | Sets the prefix which should be used for the path in the Consul KV Store         |
-| repos:credentials:username                | no       |                | `string`         | Username for the Basic Auth                                                      |
-| repos:credentials:password                | no       |                | `string`         | Password/token for the Basic Auth                                                |
-| repos:credentials:private_key:key         | no       |                | `string`         | Path to the private key used for the authentication                              |
-| repos:credentials:private_key:username    | no       | git            | `string`         | Username used with the ssh authentication                                        |
-| repos:credentials:private_key:password    | no       |                | `string`         | Password used with the ssh authentication                                        |
-| repos:hooks:type                          | no       | polling        | polling, webhook | Type of hook to use to fetch changes on the repository. See [below](#webhooks).  |
-| repos:hooks:interval                      | no       | 60             | `int`            | Interval, in seconds, to poll if polling is enabled                              |
-| repos:hooks:url                           | no       | ??             | `string`         | ???                                                                              |
-| consul:address                            | no       | 127.0.0.1:8500 | `string`         | Consul address to connect to. It can be either the IP or FQDN with port included |
-| consul:ssl_enable                         | no       | false          | true, false      | Whether to use HTTPS to communicate with Consul                                  |
-| consul:token                              | no       |                | `string`         | Consul API Token                                                                 |
+| Configuration                                     | Required | Default Value  | Available Values | Description                                                                      |
+|---------------------------------------------------|----------|----------------|------------------|----------------------------------------------------------------------------------|
+| local_store                                       | no       | `os.TempDir()` | `string`         | Local cache for git2consul to store its tracked repositories                     |
+| webhook:address                                   | no       |                | `string`         | Webhook listener address that git2consul will be using                           |
+| webhook:port                                      | no       | 9000           | `int`            | Webhook listener port that git2consul will be using                              |
+| repos:name                                        | yes      |                | `string`         | Name of the repository. This will match the webhook path, if any are enabled     |
+| repos:url                                         | yes      |                | `string`         | The URL of the repository                                                        |
+| repos:branches                                    | no       | master         | `string`         | Tracking branches of the repository                                              |
+| repos:source_root                                 | no       |                | `string`         | Source root to apply on the repo.                                                |
+| repos:expand_keys                                 | no       |                | true, false      | Enable/disable file content evaluation.                                          |
+| repos:skip_branch_name                            | no       | false          | true, false      | Enable/disable branch name pruning.                                              |
+| repos:skip_repo_name                              | no       | false          | true, false      | Enable/disable repository name pruning.                                          |
+| repos:mount_point                                 | no       |                | `string`         | Sets the prefix which should be used for the path in the Consul KV Store         |
+| repos:credentials:username                        | no       |                | `string`         | Username for the Basic Auth                                                      |
+| repos:credentials:password                        | no       |                | `string`         | Password/token for the Basic Auth                                                |
+| repos:credentials:private_key:key                 | no       |                | `string`         | Path to the private key used for the authentication                              |
+| repos:credentials:private_key:skip_host_key_check | no       | false          | `true, false`    | skip ssh host key verification                                                   |
+| repos:credentials:private_key:username            | no       | git            | `string`         | Username used with the ssh authentication                                        |
+| repos:credentials:private_key:password            | no       |                | `string`         | Password used with the ssh authentication                                        |
+| repos:hooks:type                                  | no       | polling        | polling, webhook | Type of hook to use to fetch changes on the repository. See [below](#webhooks).  |
+| repos:hooks:interval                              | no       | 60             | `int`            | Interval, in seconds, to poll if polling is enabled                              |
+| repos:hooks:url                                   | no       | ??             | `string`         | ???                                                                              |
+| consul:address                                    | no       | 127.0.0.1:8500 | `string`         | Consul address to connect to. It can be either the IP or FQDN with port included |
+| consul:ssl_enable                                 | no       | false          | true, false      | Whether to use HTTPS to communicate with Consul                                  |
+| consul:token                                      | no       |                | `string`         | Consul API Token                                                                 |
+| consul:tls_config:server_name                     | no       |                | `string`         | Consul mTLS authentication server name                                           |
+| consul:tls_config:ca_file                         | no       |                | `string`         | Consul mTLS authentication ca file path                                          |
+| consul:tls_config:cert_file                       | no       |                | `string`         | Consul mTLS authentication certificate file path                                 |
+| consul:tls_config:key_file                        | no       |                | `string`         | Consul mTLS authentication private key file path                                 |
+| consul:tls_config:insecure_skip_verify            | no       |                | `true, false`    | Consul client API skip https server certificate verify                           |
+
 
 ### Webhooks
 
@@ -104,7 +111,8 @@ Webhooks will be served from a single port, and different repositories will be g
 
 Available endpoints:
 
-* `<webhook:address>:<webhook:port>/{repos:name}/github` also works for Gitea
+* `<webhook:address>:<webhook:port>/{repos:name}/gitea`
+* `<webhook:address>:<webhook:port>/{repos:name}/github`
 * `<webhook:address>:<webhook:port>/{repos:name}/stash`
 * `<webhook:address>:<webhook:port>/{repos:name}/bitbucket`
 * `<webhook:address>:<webhook:port>/{repos:name}/gitlab`

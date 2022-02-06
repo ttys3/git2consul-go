@@ -12,6 +12,7 @@ repos:
     url: ""
   source_root: /
   mount_point: ""
+  skip_branch_name: true
   credentials:
     private_key:
       key: ~/.ssh/id_ed25519

@@ -84,6 +84,7 @@ func (w *Watcher) pollByWebhook(wg *sync.WaitGroup) {
 func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/{repository}/github", w.githubHandler)
+	r.HandleFunc("/{repository}/gitea", w.githubHandler)
 	r.HandleFunc("/{repository}/stash", w.stashHandler)
 	r.HandleFunc("/{repository}/bitbucket", w.bitbucketHandler)
 	r.HandleFunc("/{repository}/gitlab", w.gitlabHandler)
@@ -93,7 +94,7 @@ func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	errCh <- http.ListenAndServe(addr, r)
 }
 
-// HTTP handler for github
+// HTTP handler for github, and also gitea (currently gitea webhook payload is compatible with github's)
 func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 	vars := mux.Vars(rq)
 	repository := vars["repository"]
