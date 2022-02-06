@@ -71,7 +71,6 @@ func (c Config) DumpSampleConfig(w io.Writer) error {
 		Address:   "127.0.0.1:8500",
 		Token:     "",
 		SSLEnable: false,
-		SSLVerify: false,
 	}
 	out, err := yaml.Marshal(c)
 	if err != nil {
@@ -128,18 +127,22 @@ type WebhookServerConfig struct {
 
 // ConsulConfig is the configuration for the Consul client
 type ConsulConfig struct {
-	Address   string `json:"address" yaml:"address"` // default is 127.0.0.1:8500
-	Token     string `json:"token,omitempty" yaml:"token,omitempty"`
-	SSLEnable bool   `json:"ssl" yaml:"ssl_enable"`
-	SSLVerify bool   `json:"ssl_verify,omitempty" yaml:"ssl_verify,omitempty"`
-	// can also set from env, see github.com/hashicorp/consul/api@v1.12.0/api.go
-	// consul api.DefaultConfig() will handle these env vars
-	// if mTLS is enabled on consul, below env vars should be configured
-	// api.TLSConfig.Address CONSUL_TLS_SERVER_NAME
-	// api.TLSConfig.CAFile CONSUL_CACERT
-	// api.TLSConfig.CertFile CONSUL_CLIENT_CERT
-	// api.TLSConfig.KeyFile CONSUL_CLIENT_KEY
-	// api.TLSConfig.InsecureSkipVerify CONSUL_HTTP_SSL_VERIFY
+	Address   string          `json:"address" yaml:"address"` // default is 127.0.0.1:8500
+	Token     string          `json:"token,omitempty" yaml:"token,omitempty"`
+	SSLEnable bool            `json:"ssl" yaml:"ssl_enable"`
+	TLSConfig ConsulTLSConfig `json:"tls_config" yaml:"tls_config,omitempty"`
+}
+
+// ConsulTLSConfig used for consul mTLS auth
+// can also set from env, see github.com/hashicorp/consul/api@v1.12.0/api.go
+// consul api.DefaultConfig() will handle these env vars
+// if mTLS is enabled on consul, below env vars should be configured
+type ConsulTLSConfig struct {
+	ServerName         string `json:"server_name,omitempty" yaml:"server_name,omitempty"`                   // api.TLSConfig.Address CONSUL_TLS_SERVER_NAME
+	CAFile             string `json:"ca_file,omitempty" yaml:"ca_file,omitempty"`                           // api.TLSConfig.CAFile CONSUL_CACERT
+	CertFile           string `json:"cert_file,omitempty" yaml:"cert_file,omitempty"`                       // api.TLSConfig.CertFile CONSUL_CLIENT_CERT
+	KeyFile            string `json:"key_file,omitempty" yaml:"key_file,omitempty"`                         // api.TLSConfig.KeyFile CONSUL_CLIENT_KEY
+	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty" yaml:"insecure_skip_verify,omitempty"` // api.TLSConfig.InsecureSkipVerify CONSUL_HTTP_SSL_VERIFY
 }
 
 func (r *Repo) String() string {

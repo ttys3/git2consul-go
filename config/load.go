@@ -157,7 +157,7 @@ func (c *Config) setDefaultConfig() {
 			repo.Hooks = append(repo.Hooks, hook)
 		}
 
-		// expand tilde home directory for private key path
+		// expand tilde home directory for key path
 		if repo.Credentials.PrivateKey.Key != "" {
 			if strings.HasPrefix(repo.Credentials.PrivateKey.Key, "~/") {
 				dirname, _ := os.UserHomeDir()

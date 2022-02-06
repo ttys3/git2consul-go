@@ -33,7 +33,7 @@ type KVHandler struct { //nolint:revive
 	logger *log.Entry
 }
 
-//TransactionIntegrityError implements error to handle any violation of transaction atomicity.
+// TransactionIntegrityError implements error to handle any violation of transaction atomicity.
 type TransactionIntegrityError struct {
 	msg string
 }
@@ -77,8 +77,22 @@ func newAPIClient(config *config.ConsulConfig) (*api.Client, error) {
 		consulConfig.Scheme = "https"
 	}
 
-	if !config.SSLVerify {
+	if config.TLSConfig.InsecureSkipVerify {
 		consulConfig.TLSConfig.InsecureSkipVerify = true
+	}
+
+	// mTLS config
+	if config.TLSConfig.CAFile != "" {
+		consulConfig.TLSConfig.CAFile = config.TLSConfig.CAFile
+	}
+	if config.TLSConfig.CertFile != "" {
+		consulConfig.TLSConfig.CertFile = config.TLSConfig.CertFile
+	}
+	if config.TLSConfig.KeyFile != "" {
+		consulConfig.TLSConfig.KeyFile = config.TLSConfig.KeyFile
+	}
+	if config.TLSConfig.ServerName != "" {
+		consulConfig.TLSConfig.Address = config.TLSConfig.ServerName
 	}
 
 	client, err := api.NewClient(consulConfig)
@@ -89,7 +103,7 @@ func newAPIClient(config *config.ConsulConfig) (*api.Client, error) {
 	return client, nil
 }
 
-//Put overrides Consul API Put function to add entry to KVTxnOps.
+// Put overrides Consul API Put function to add entry to KVTxnOps.
 func (h *KVHandler) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb:  api.KVSet,
@@ -100,7 +114,7 @@ func (h *KVHandler) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.Wr
 	return nil, nil
 }
 
-//Delete overrides Consul API Delete function to add entry to KVTxnOps.
+// Delete overrides Consul API Delete function to add entry to KVTxnOps.
 func (h *KVHandler) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb: api.KVDelete,
@@ -110,7 +124,7 @@ func (h *KVHandler) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMe
 	return nil, nil
 }
 
-//DeleteTree overrides Consul API DeleteTree function to add entry to KVTxnOps.
+// DeleteTree overrides Consul API DeleteTree function to add entry to KVTxnOps.
 func (h *KVHandler) DeleteTree(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb: api.KVDeleteTree,
@@ -120,13 +134,13 @@ func (h *KVHandler) DeleteTree(key string, wOptions *api.WriteOptions) (*api.Wri
 	return nil, nil
 }
 
-//Commit function executes set of operations from KVTxnOps as single transaction.
+// Commit function executes set of operations from KVTxnOps as single transaction.
 func (h *KVHandler) Commit() error {
 	defer func() {
 		h.KVTxnOps = nil
 	}()
 	var kvTxnOps = h.KVTxnOps
-	//move modify index check to the end
+	// move modify index check to the end
 	if h.KVTxnOps[0].Verb == api.KVCheckIndex {
 		length := len(h.KVTxnOps)
 		kvTxnOps = append(h.KVTxnOps[1:length-1], h.KVTxnOps[0], h.KVTxnOps[length-1])
