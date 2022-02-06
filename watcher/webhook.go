@@ -19,13 +19,14 @@ package watch
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apex/log"
 	"io/ioutil"
 	"net/http"
 	"sort"
 	"sync"
 
-	"github.com/gorilla/mux"
 	"github.com/go-git/go-git/v5"
+	"github.com/gorilla/mux"
 )
 
 // GithubPayload is the response from GitHub
@@ -88,6 +89,7 @@ func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	r.HandleFunc("/{repository}/gitlab", w.gitlabHandler)
 
 	addr := fmt.Sprintf("%s:%d", w.hookSvr.Address, w.hookSvr.Port)
+	log.Infof("webhook http server listening on %s", addr)
 	errCh <- http.ListenAndServe(addr, r)
 }
 
@@ -95,8 +97,10 @@ func (w *Watcher) ListenAndServe(errCh chan<- error) {
 func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 	vars := mux.Vars(rq)
 	repository := vars["repository"]
-
 	eventType := rq.Header.Get("X-Github-Event")
+
+	w.logger.WithField("repository", repository).WithField("eventType", eventType).Info("Received hook event from GitHub")
+
 	if eventType == "" {
 		http.Error(rw, "Missing X-Github-Event header", http.StatusBadRequest)
 		return
@@ -141,17 +145,21 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 	}
 
 	repo := w.Repositories[i]
-	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitHub")
+	w.logger.WithField("repository", repo.Name()).WithField("branchName", branchName).Info("repo found, begin pull")
 
 	err = repo.Pull(branchName)
 	switch {
 	case err == git.NoErrAlreadyUpToDate:
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
+		rw.Write([]byte(fmt.Sprintf("Up to date: %s/%s", repo.Name(), branchName)))
 	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
+		rw.Write([]byte(fmt.Sprintf("Changed: %s/%s", repo.Name(), branchName)))
 		w.RepoChangeCh <- repo
 	case err != nil:
 		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(fmt.Sprintf("Failed: %s/%s - %s", repo.Name(), branchName, err)))
 	}
 }
 

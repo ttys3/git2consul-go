@@ -60,7 +60,7 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 		reposI[index] = repo
 	}
 	// Create watcher to watch for repo changes
-	watcher := watch.New(reposI, config.HookSvr, once)
+	watcher := watch.New(reposI, config.Webhook, once)
 
 	// Create the handler
 	handler, err := kv.New(config.Consul)

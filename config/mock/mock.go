@@ -47,7 +47,7 @@ func Config(repoURL string) *config.Config {
 	}
 	return &config.Config{
 		LocalStore: localStore,
-		HookSvr: &config.HookSvrConfig{
+		Webhook: &config.WebhookServerConfig{
 			Port: 9000,
 		},
 		Repos: []*config.Repo{

@@ -19,8 +19,10 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -43,9 +45,17 @@ func Load(file string) (*Config, error) {
 	// Create Config object pointer and unmashal JSON into it
 	config := &Config{
 		Consul:  &ConsulConfig{},
-		HookSvr: &HookSvrConfig{},
+		Webhook: &WebhookServerConfig{},
 	}
-	err = json.Unmarshal(content, config)
+	ext := filepath.Ext(file)
+	switch ext {
+	case ".json":
+		err = json.Unmarshal(content, config)
+	case ".yml", ".yaml":
+		err = yaml.Unmarshal(content, config)
+	default:
+		err = fmt.Errorf("invalid config file extension: %s", ext)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -125,13 +135,13 @@ func (c *Config) setDefaultConfig() {
 	}
 
 	// Set the default webhook port
-	if c.HookSvr.Port == 0 {
-		c.HookSvr.Port = 9000
+	if c.Webhook.Port == 0 {
+		c.Webhook.Port = 9000
 	}
 
-	//For each repo, set default branch and hook
+	// For each repo, set default branch and hook
 	for _, repo := range c.Repos {
-		branch := []string{"master"}
+		branch := []string{"main"}
 		// If there are no branches, set it to master
 		if len(repo.Branches) == 0 {
 			repo.Branches = branch
@@ -145,6 +155,14 @@ func (c *Config) setDefaultConfig() {
 			}
 
 			repo.Hooks = append(repo.Hooks, hook)
+		}
+
+		// expand tilde home directory for private key path
+		if repo.Credentials.PrivateKey.Key != "" {
+			if strings.HasPrefix(repo.Credentials.PrivateKey.Key, "~/") {
+				dirname, _ := os.UserHomeDir()
+				repo.Credentials.PrivateKey.Key = filepath.Join(dirname, repo.Credentials.PrivateKey.Key[2:])
+			}
 		}
 	}
 }

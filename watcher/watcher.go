@@ -36,13 +36,13 @@ type Watcher struct {
 	RcvDoneCh    chan struct{}
 	SndDoneCh    chan struct{}
 
-	hookSvr *config.HookSvrConfig
+	hookSvr *config.WebhookServerConfig
 	once    bool
 }
 
 // New create a new watcher, passing in the repositories, webhook
 // listener config, and optional once flag
-func New(repos []repository.Repo, hookSvr *config.HookSvrConfig, once bool) *Watcher {
+func New(repos []repository.Repo, hookSvr *config.WebhookServerConfig, once bool) *Watcher {
 	repoChangeCh := make(chan repository.Repo, len(repos))
 	logger := log.WithField("caller", "watcher")
 

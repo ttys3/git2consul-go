@@ -17,6 +17,7 @@ limitations under the License.
 package watch
 
 import (
+	"github.com/apex/log"
 	"path"
 	"sync"
 	"time"
@@ -33,12 +34,16 @@ func (w *Watcher) pollByInterval(repo repository.Repo, wg *sync.WaitGroup) {
 	config := repo.GetConfig()
 
 	hooks := config.Hooks
-	interval := time.Second
+	interval := time.Duration(0)
 
 	// Find polling hook
 	for _, h := range hooks {
 		if h.Type == "polling" {
 			interval = h.Interval
+			if interval == 0 {
+				interval = time.Second * 5
+			}
+			log.Infof("polling enabled for repo=%v", repo.Name())
 			break
 		}
 	}

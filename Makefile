@@ -2,10 +2,10 @@ BINARY = git2consul
 COMMIT := $(shell git rev-parse HEAD)
 BRANCH := $(shell git symbolic-ref --short -q HEAD || echo HEAD)
 DATE := $(shell date -u +%Y%m%d-%H:%M:%S)
+TAG := $(shell git describe --tags `git rev-list --tags --max-count=1`)
 VERSION_PKG = github.com/KohlsTechnology/git2consul-go/pkg/version
 LDFLAGS := "-X ${VERSION_PKG}.Branch=${BRANCH} -X ${VERSION_PKG}.BuildDate=${DATE} \
-	-X ${VERSION_PKG}.GitSHA1=${COMMIT}"
-TAG?=""
+	-X ${VERSION_PKG}.GitSHA1=${COMMIT} -X ${VERSION_PKG}.Version=${TAG}"
 
 .PHONY: all
 all: build
@@ -16,7 +16,13 @@ clean:
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -o $(BINARY) -ldflags $(LDFLAGS)
+	CGO_ENABLED=0 go build -ldflags "-s -w" -o $(BINARY) -ldflags $(LDFLAGS)
+
+dump:
+	./$(BINARY) -dump > ./config.sample.yaml
+
+run:
+	./$(BINARY) -debug -config ./config.sample.yaml
 
 .PHONY: vendor
 vendor:
@@ -51,11 +57,6 @@ golangci-lint:
 
 .PHONY: lint-all
 lint-all: golangci-lint
-
-.PHONY: tag
-tag:
-	git tag -a $(TAG) -m "Release $(TAG)"
-	git push origin $(TAG)
 
 # Requires GITHUB_TOKEN environment variable to be set
 .PHONY: release

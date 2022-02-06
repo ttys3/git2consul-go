@@ -42,17 +42,19 @@ const (
 func main() {
 
 	var (
-		filename     string
-		printVersion bool
-		debug        bool
-		once         bool
-		logfmt       string
+		filename         string
+		printVersion     bool
+		debug            bool
+		once             bool
+		dumpSampleConfig bool
+		logfmt           string
 	)
 
 	flag.StringVar(&filename, "config", "", "path to config file")
 	flag.BoolVar(&printVersion, "version", false, "show version")
 	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
+	flag.BoolVar(&dumpSampleConfig, "dump", false, "dump sample config")
 	// allow switching logformat. Structured output helps with parsers
 	flag.StringVar(&logfmt, "logfmt", "text", "specify log format [text | json] ")
 	flag.Parse()
@@ -60,6 +62,14 @@ func main() {
 	if printVersion {
 		version.Print()
 		return
+	}
+
+	if dumpSampleConfig {
+		demo := config.Config{}
+		if err := demo.DumpSampleConfig(os.Stdout); err != nil {
+			log.Fatal(err.Error())
+		}
+		os.Exit(0)
 	}
 
 	// Init checks
