@@ -17,6 +17,7 @@ limitations under the License.
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"path"
 
@@ -33,7 +34,7 @@ func (r *Repository) checkoutConfigBranches() error {
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 	})
-	if err != nil && err != git.NoErrAlreadyUpToDate {
+	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
 		log.WithField("error", err.Error()).Error("checkoutConfigBranches Fetch failed")
 	}
 
@@ -71,7 +72,7 @@ func (r *Repository) CheckoutBranch(branch plumbing.ReferenceName) error {
 		Auth:     r.Authentication,
 		Force:    true,
 	})
-	if err != nil && err != git.NoErrAlreadyUpToDate {
+	if err != nil && !errors.Is(err, git.NoErrAlreadyUpToDate) {
 		log.WithField("error", err.Error()).Error("CheckoutBranch Fetch failed")
 	}
 
