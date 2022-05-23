@@ -75,7 +75,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           registry: docker.io
       - name: Build and push to docker.io
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
